@@ -1,38 +1,16 @@
 package org.esiea.bouchez_drach.models;
 
-import jakarta.persistence.*;
-import java.time.LocalDateTime;
-
-@Entity
 public class Message {
+    private String sender;
+    private String content;
+    private long timestamp;
 
-    @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long id;
-
-    private String username; // Nom de l'utilisateur qui envoie le message
-    private String content;  // Contenu du message
-    private LocalDateTime timestamp; // Date et heure du message
-
-    public Message() {
-        this.timestamp = LocalDateTime.now();
+    public String getSender() {
+        return sender;
     }
 
-    // Getters et setters
-    public Long getId() {
-        return id;
-    }
-
-    public void setId(Long id) {
-        this.id = id;
-    }
-
-    public String getUsername() {
-        return username;
-    }
-
-    public void setUsername(String username) {
-        this.username = username;
+    public void setSender(String sender) {
+        this.sender = sender;
     }
 
     public String getContent() {
@@ -43,11 +21,11 @@ public class Message {
         this.content = content;
     }
 
-    public LocalDateTime getTimestamp() {
+    public long getTimestamp() {
         return timestamp;
     }
 
-    public void setTimestamp(LocalDateTime timestamp) {
+    public void setTimestamp(long timestamp) {
         this.timestamp = timestamp;
     }
 }

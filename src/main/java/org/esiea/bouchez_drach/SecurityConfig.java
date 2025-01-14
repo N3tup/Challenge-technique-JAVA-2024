@@ -16,11 +16,11 @@ public class SecurityConfig {
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
         http
                 .authorizeHttpRequests(authorize -> authorize
-                        .requestMatchers("/", "/index.html", "/connection.html", "/static/**").permitAll() // Public endpoints
+                        .requestMatchers("/", "/page_chat.html", "/page_connection.html", "/static/**").permitAll() // Public endpoints
                         .anyRequest().authenticated() // All other endpoints require authentication
                 )
                 .formLogin(form -> form
-                        .loginPage("/connection.html") // Custom login page
+                        .loginPage("/page_connection.html") // Custom login page
                         .permitAll() // Allow everyone to access the login page
                 )
                 .logout(logout -> logout
@@ -37,7 +37,7 @@ public class SecurityConfig {
 
         @GetMapping("/login")
         public String redirectToConnection() {
-            return "redirect:/connection.html";
+            return "redirect:/page_connection.html";
         }
     }
 }

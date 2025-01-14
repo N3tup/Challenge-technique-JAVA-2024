@@ -49,22 +49,34 @@
             background-color: #005bb5;
         }
     </style>
-</head>
+    <head>
+        <meta charset="UTF-8">
+        <title>Discoghd</title>
+    </head>
 <body>
-<div class="container">
-    <form id="connection-form">
-        <label for="username">Pseudonyme:</label>
-        <input type="text" id="username" name="username" required />
-        <button type="submit">Accéder au chat</button>
-    </form>
+<h1>Entrez votre pseudonyme</h1>
+<div style="color:red;">
+    <p th:if="${error}" th:utext="${error}"></p>
 </div>
+<input type="text" id="username" placeholder="Pseudonyme">
+<button onclick="enterChat()">Entrer dans le Chat</button>
 
 <script>
-    document.getElementById('connection-form').addEventListener('submit', function(event) {
-        event.preventDefault();
-        const username = document.getElementById('username').value;
-        localStorage.setItem('username', username);
-        window.location.href = '/index.html';
+    function enterChat() {
+        const username = document.getElementById("username").value;
+        if (username.trim() === "") {
+            alert("Le pseudonyme ne peut pas être vide");
+            return;
+        }
+        window.location.href = `/chat?username=${encodeURIComponent(username)}`;
+    }
+
+    // Permettre d'appuyer sur Entrée pour valider le pseudonyme
+    document.getElementById("username").addEventListener("keypress", function(event) {
+        if (event.key === "Enter") {
+            event.preventDefault();
+            enterChat();
+        }
     });
 </script>
 </body>

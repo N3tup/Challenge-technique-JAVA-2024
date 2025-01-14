@@ -1,0 +1,50 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <title>Chat Room</title>
+    <script src="https://cdn.jsdelivr.net/npm/sockjs-client@1.5.0/dist/sockjs.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/stompjs@2.3.3/lib/stomp.min.js"></script>
+</head>
+<body>
+<h1>Bienvenue dans le Chat !</h1>
+<div id="chat">
+    <ul id="messages"></ul>
+</div>
+<input type="text" id="messageInput" placeholder="Tapez votre message...">
+<button onclick="sendMessage()">Envoyer</button>
+<button onclick="window.location.href='/'">Quitter</button>
+
+<script>
+    const urlParams = new URLSearchParams(window.location.search);
+    const username = urlParams.get('username');
+    const socket = new SockJS('/chat-websocket');
+    const stompClient = Stomp.over(socket);
+
+    stompClient.connect({}, () => {
+        stompClient.subscribe('/topic/messages', (message) => {
+            const msg = JSON.parse(message.body);
+            const listItem = document.createElement("li");
+            listItem.textContent = `${msg.sender}: ${msg.content} (${new Date(msg.timestamp).toLocaleTimeString()})`;
+            document.getElementById("messages").appendChild(listItem);
+        });
+    });
+
+    function sendMessage() {
+        const content = document.getElementById("messageInput").value;
+        if (content.trim() !== "") {
+            stompClient.send("/app/sendMessage", {}, JSON.stringify({sender: username, content: content}));
+            document.getElementById("messageInput").value = "";
+        }
+    }
+
+    // Envoi du message avec la touche Entrée
+    document.getElementById("messageInput").addEventListener("keypress", function(event) {
+        if (event.key === "Enter") {
+            event.preventDefault();
+            sendMessage();
+        }
+    });
+</script>
+</body>
+</html>
