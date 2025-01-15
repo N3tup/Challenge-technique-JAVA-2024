@@ -39,6 +39,15 @@ public class ChatController {
         return "page_connection";
     }
 
+    // acces inscription
+    @GetMapping("/inscription")
+    public String inscriptionPage(@RequestParam(value = "error", required = false) String error, Model model) {
+        if (error != null) {
+            model.addAttribute("error", error);
+        }
+        return "page_inscription";
+    }
+
     @GetMapping("/chat")
     public String chatPage(@RequestParam String username, Model model) {
         if (username.isBlank() || activeUsernames.contains(username)) {

@@ -1,114 +1,98 @@
 <!DOCTYPE html>
-<html lang="fr">
+<html lang="en">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Connexion</title>
+    <title>Connexion au Chat</title>
     <style>
         body {
             font-family: Arial, sans-serif;
             margin: 0;
             padding: 0;
             background-color: #f4f4f9;
-            color: #333;
         }
-        main {
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            justify-content: center;
-            min-height: 100vh;
-        }
+
         .container {
             display: flex;
             flex-direction: column;
             max-width: 400px;
-            width: 90%;
-            padding: 1.5rem;
+            margin: 2rem auto;
+            padding: 1rem;
             background: white;
             border-radius: 8px;
-            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
-            text-align: center;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
         }
-        h1 {
-            font-size: 1.5rem;
-            margin-bottom: 1rem;
-        }
-        .error-message {
-            color: red;
-            font-size: 0.9rem;
-            margin-bottom: 1rem;
-            display: none;
-        }
+
         label {
-            display: block;
-            font-weight: bold;
             margin-bottom: 0.5rem;
-            text-align: left;
+            font-weight: bold;
         }
-        input[type="text"] {
+
+        input {
             padding: 0.5rem;
             border: 1px solid #ddd;
             border-radius: 5px;
             margin-bottom: 1rem;
             width: 100%;
-            font-size: 1rem;
-            box-sizing: border-box;
         }
-        input[type="text"]:focus {
-            outline: none;
-            border-color: #0078d7;
-            box-shadow: 0 0 4px rgba(0, 120, 215, 0.4);
-        }
+
         button {
-            padding: 0.75rem 1.5rem;
+            padding: 0.5rem 1rem;
             background-color: #0078d7;
             color: white;
             border: none;
             border-radius: 5px;
             cursor: pointer;
-            font-size: 1rem;
-            transition: background-color 0.3s;
         }
+
         button:hover {
             background-color: #005bb5;
         }
-        button:focus {
-            outline: none;
-            box-shadow: 0 0 4px rgba(0, 120, 215, 0.6);
+
+        .link {
+            text-align: center;
+            margin-top: 1rem;
+        }
+
+        .link a {
+            color: #0078d7;
+            text-decoration: none;
+        }
+
+        .link a:hover {
+            text-decoration: underline;
         }
     </style>
 </head>
 <body>
-<main>
-    <div class="container">
-        <h1>Entrez votre pseudonyme</h1>
-        <p id="error-message" class="error-message">Le pseudonyme ne peut pas être vide</p>
-        <form id="chat-form" onsubmit="handleSubmit(event)">
-            <label for="username">Pseudonyme</label>
-            <input type="text" id="username" placeholder="Entrez votre pseudonyme" required>
-            <button type="submit">Rejoindre le Chat</button>
-        </form>
+<h1 class="text-center">Connexion au Chat</h1>
+<div class="container">
+    <label for="userId">ID</label>
+    <input type="text" id="userId" placeholder="Entrez votre ID">
+
+    <label for="password">Mot de passe</label>
+    <input type="password" id="password" placeholder="Entrez votre mot de passe">
+
+    <button onclick="login()">Connexion</button>
+
+    <div class="link">
+        <p>Pas encore de compte ?<a href="/inscription">Inscription</a></p>
     </div>
-</main>
+</div>
 
 <script>
-    function handleSubmit(event) {
-        event.preventDefault();
-        const username = document.getElementById("username").value.trim();
-        const errorMessage = document.getElementById("error-message");
+    function login() {
+        const userId = document.getElementById("userId").value;
+        const password = document.getElementById("password").value;
 
-        if (!username) {
-            errorMessage.style.display = "block";
+        if (userId.trim() === "" || password.trim() === "") {
+            alert("Veuillez remplir tous les champs !");
             return;
         }
-        errorMessage.style.display = "none";
-        window.location.href = `/chat?username=${encodeURIComponent(username)}`;
-    }
 
-    document.getElementById("username").addEventListener("input", function() {
-        document.getElementById("error-message").style.display = "none";
-    });
+        // Redirection vers le chat avec l'ID utilisateur
+        window.location.href = `/chat?username=${encodeURIComponent(userId)}`;
+    }
 </script>
 </body>
 </html>
