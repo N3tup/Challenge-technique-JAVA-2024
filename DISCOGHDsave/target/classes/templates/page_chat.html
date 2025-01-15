@@ -23,16 +23,6 @@
             padding: 1rem;
         }
 
-        h1, h2 {
-            margin-bottom: 1rem;
-            color: #333;
-        }
-
-        h2 {
-            font-size: 1.2rem;
-            color: #555;
-        }
-
         #chat {
             width: 100%;
             max-width: 600px;
@@ -43,7 +33,6 @@
             border-radius: 8px;
             margin-bottom: 1rem;
             padding: 1rem;
-            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
         }
 
         #messages {
@@ -55,7 +44,6 @@
         #messages li {
             padding: 0.5rem;
             border-bottom: 1px solid #eee;
-            font-size: 0.9rem;
         }
 
         #messages li:last-child {
@@ -74,7 +62,6 @@
             padding: 0.5rem;
             border: 1px solid #ddd;
             border-radius: 5px;
-            font-size: 1rem;
         }
 
         #messageInput:focus {
@@ -90,59 +77,135 @@
             border: none;
             border-radius: 5px;
             cursor: pointer;
-            font-size: 1rem;
-            transition: background-color 0.3s;
         }
 
-        button:hover {
-            background-color: #005bb5;
+        #menu {
+            position: fixed;
+            top: 0;
+            right: -275px; /* Menu caché */
+            width: 300px;
+            height: 100%;
+            background: white;
+            box-shadow: -2px 0 5px rgba(0, 0, 0, 0.1);
+            transition: right 0.3s ease-in-out;
+            padding: 1rem;
+            z-index: 1000;
         }
 
-        button:focus {
+        #menu.open {
+            right: 0; /* Menu visible */
+        }
+
+        #menu h2 {
+            margin: 0 0 1rem;
+        }
+
+        #menu ul {
+            list-style: none;
+            padding: 0;
+        }
+
+        #menu ul li {
+            padding: 0.5rem 0;
+            border-bottom: 1px solid #ddd;
+        }
+
+        #toggleMenu {
+            position: fixed;
+            top: 1rem;
+            right: 1rem;
+            background: #0078d7;
+            color: white;
+            border: none;
+            padding: 0.5rem 1rem;
+            border-radius: 5px;
+            cursor: pointer;
+        }
+
+        #toggleMenu:focus {
             outline: none;
-            box-shadow: 0 0 4px rgba(0, 120, 215, 0.6);
+        }
+
+        #logoutButton {
+            padding: 0.5rem 1rem;
+            background-color: #d9534f;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            margin-top: 1rem;
+        }
+
+        #logoutButton:hover {
+            background-color: #c9302c;
         }
     </style>
 </head>
 <body>
 <main>
+    <div style="text-align: right; width: 100%; max-width: 600px;">
+        <button id="logoutButton" onclick="logout()">Déconnexion</button>
+    </div>
     <h1>Bienvenue dans le Chat !</h1>
-    <h2 id="welcomeMessage"></h2>
     <section id="chat">
         <ul id="messages"></ul>
     </section>
+
     <div class="message-input-container">
-        <input type="text" id="messageInput" placeholder="Tapez votre message..." aria-label="Message">
+        <input type="text" id="messageInput" placeholder="Tapez votre message...">
         <button onclick="sendMessage()">Envoyer</button>
-        <button onclick="window.location.href='/'">Quitter</button>
     </div>
 </main>
+
+<!-- Menu glissant -->
+<button id="toggleMenu">Utilisateurs</button>
+<div id="menu">
+    <h2>Utilisateurs connectés</h2>
+    <ul id="userList">
+        <!-- Liste dynamique des utilisateurs -->
+    </ul>
+</div>
 
 <script>
     const urlParams = new URLSearchParams(window.location.search);
     const username = urlParams.get('username') || "Anonyme";
 
-    // Display the username on the main page
-    const welcomeMessage = document.getElementById("welcomeMessage");
-    welcomeMessage.textContent = `Connecté en tant que : ${username}`;
-
+    // WebSocket setup
     const socket = new SockJS('/chat-websocket');
     const stompClient = Stomp.over(socket);
 
     stompClient.connect({}, () => {
+        // Subscribe to general messages
         stompClient.subscribe('/topic/messages', (message) => {
             const msg = JSON.parse(message.body);
             const listItem = document.createElement("li");
-            listItem.textContent = `${msg.sender}: ${msg.content} (${new Date(msg.timestamp).toLocaleTimeString()})`;
+            listItem.textContent = `${msg.sender}: ${msg.content}`;
             document.getElementById("messages").appendChild(listItem);
-
-            // Scroll to the latest message
-            const chat = document.getElementById("chat");
-            chat.scrollTop = chat.scrollHeight;
         });
-    }, (error) => {
-        alert("Erreur de connexion au serveur de chat. Veuillez réessayer plus tard.");
-        console.error("WebSocket error: ", error);
+
+        // Subscribe to the global active users list
+        stompClient.subscribe('/topic/activeUsers', (message) => {
+            const users = JSON.parse(message.body);
+            const userList = document.getElementById("userList");
+            userList.innerHTML = '';
+            users.forEach((user) => {
+                const listItem = document.createElement("li");
+                listItem.textContent = user;
+                userList.appendChild(listItem);
+            });
+        });
+
+        // Subscribe to the private active users list for this user
+        stompClient.subscribe('/user/queue/activeUsers', (message) => {
+            const users = JSON.parse(message.body);
+            const userList = document.getElementById("userList");
+            userList.innerHTML = '';
+            users.forEach((user) => {
+                const listItem = document.createElement("li");
+                listItem.textContent = user;
+                userList.appendChild(listItem);
+            });
+        });
     });
 
     function sendMessage() {
@@ -150,15 +213,32 @@
         if (content) {
             stompClient.send("/app/sendMessage", {}, JSON.stringify({ sender: username, content: content }));
             document.getElementById("messageInput").value = "";
-        } else {
-            alert("Le message ne peut pas être vide.");
         }
     }
 
-    document.getElementById("messageInput").addEventListener("keypress", function(event) {
-        if (event.key === "Enter") {
-            event.preventDefault();
-            sendMessage();
+    function logout() {
+        if (stompClient) {
+            stompClient.disconnect(() => {
+                console.log("Disconnected from WebSocket");
+            });
+        }
+        window.location.href = `/logout?username=${encodeURIComponent(username)}`;
+    }
+
+    // Menu sliding logic
+    const menu = document.getElementById("menu");
+    const toggleMenu = document.getElementById("toggleMenu");
+
+    toggleMenu.addEventListener("click", () => {
+        menu.classList.toggle("open");
+    });
+
+    document.addEventListener("click", (event) => {
+        const isClickInsideMenu = menu.contains(event.target);
+        const isClickToggleButton = toggleMenu.contains(event.target);
+
+        if (!isClickInsideMenu && !isClickToggleButton && menu.classList.contains("open")) {
+            menu.classList.remove("open");
         }
     });
 </script>

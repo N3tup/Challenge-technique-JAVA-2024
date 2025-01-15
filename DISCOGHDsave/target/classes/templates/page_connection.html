@@ -1,9 +1,9 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="fr">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>User Connection</title>
+    <title>Connexion</title>
     <style>
         body {
             font-family: Arial, sans-serif;
@@ -12,7 +12,6 @@
             background-color: #f4f4f9;
             color: #333;
         }
-
         main {
             display: flex;
             flex-direction: column;
@@ -20,7 +19,6 @@
             justify-content: center;
             min-height: 100vh;
         }
-
         .container {
             display: flex;
             flex-direction: column;
@@ -32,26 +30,22 @@
             box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
             text-align: center;
         }
-
         h1 {
             font-size: 1.5rem;
             margin-bottom: 1rem;
         }
-
         .error-message {
             color: red;
             font-size: 0.9rem;
             margin-bottom: 1rem;
             display: none;
         }
-
         label {
             display: block;
             font-weight: bold;
             margin-bottom: 0.5rem;
             text-align: left;
         }
-
         input[type="text"] {
             padding: 0.5rem;
             border: 1px solid #ddd;
@@ -61,13 +55,11 @@
             font-size: 1rem;
             box-sizing: border-box;
         }
-
         input[type="text"]:focus {
             outline: none;
             border-color: #0078d7;
             box-shadow: 0 0 4px rgba(0, 120, 215, 0.4);
         }
-
         button {
             padding: 0.75rem 1.5rem;
             background-color: #0078d7;
@@ -78,11 +70,9 @@
             font-size: 1rem;
             transition: background-color 0.3s;
         }
-
         button:hover {
             background-color: #005bb5;
         }
-
         button:focus {
             outline: none;
             box-shadow: 0 0 4px rgba(0, 120, 215, 0.6);
@@ -92,12 +82,12 @@
 <body>
 <main>
     <div class="container">
-        <h1>Enter Your Username</h1>
-        <p id="error-message" class="error-message">The username cannot be empty</p>
+        <h1>Entrez votre pseudonyme</h1>
+        <p id="error-message" class="error-message">Le pseudonyme ne peut pas être vide</p>
         <form id="chat-form" onsubmit="handleSubmit(event)">
-            <label for="username">Username</label>
-            <input type="text" id="username" placeholder="Enter your username" required>
-            <button type="submit">Join Chat</button>
+            <label for="username">Pseudonyme</label>
+            <input type="text" id="username" placeholder="Entrez votre pseudonyme" required>
+            <button type="submit">Rejoindre le Chat</button>
         </form>
     </div>
 </main>
@@ -112,14 +102,12 @@
             errorMessage.style.display = "block";
             return;
         }
-
         errorMessage.style.display = "none";
         window.location.href = `/chat?username=${encodeURIComponent(username)}`;
     }
 
-    document.getElementById("username").addEventListener("input", () => {
-        const errorMessage = document.getElementById("error-message");
-        errorMessage.style.display = "none";
+    document.getElementById("username").addEventListener("input", function() {
+        document.getElementById("error-message").style.display = "none";
     });
 </script>
 </body>
