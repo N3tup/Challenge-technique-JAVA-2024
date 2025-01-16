@@ -68,9 +68,12 @@ public class UserController {
 
     // Display the user login form
     @GetMapping("/login")
-    public String showLoginForm() {
-        return "page_connection"; // Returns login.html view
+    public String showLoginForm(Model model) {
+        model.addAttribute("error", null);
+        return "page_connection"; // Returns page_connection.html view
     }
+
+    // Handle user login
 
     // Handle user login
     @PostMapping("/login")
@@ -84,11 +87,16 @@ public class UserController {
             BCryptPasswordEncoder passwordEncoder = new BCryptPasswordEncoder();
             if (passwordEncoder.matches(password, user.get().getPassword())) {
                 model.addAttribute("username", username);
-                return "redirect:/chat"; // Redirect to the chat page or dashboard
+                return "redirect:/chat?username=" + username; // Redirect to the chat page or dashboard
+            } else {
+                model.addAttribute("error", "Invalid password.");
+                return "/page_connection"; // Return home page with error
             }
+        } else {
+            model.addAttribute("error", "Username does not exist.");
+            return "/page_connection"; // Return home page with error
         }
-        model.addAttribute("error", "Invalid username or password.");
-        return "redirect:/"; // Return to login form with error
+
     }
 
     // Handle user logout

@@ -67,32 +67,22 @@
 <body>
 <h1 class="text-center">Connexion au Chat</h1>
 <div class="container">
-    <label for="userId">ID</label>
-    <input type="text" id="userId" placeholder="Entrez votre ID">
 
-    <label for="password">Mot de passe</label>
-    <input type="password" id="password" placeholder="Entrez votre mot de passe">
+    <form action="/user/login" method="post">
+        <label for="username">Identifiant</label>
+        <input type="text" id="username" name="username" required>
 
-    <button onclick="login()">Connexion</button>
+        <label for="password">Mot de passe</label>
+        <input type="password" id="password" name="password" required>
+
+        <button type="submit">Connexion</button>
+    </form>
+
+    <p th:if="${error}" style="color: red;">Identifiant ou mot de passe incorrect</p>
 
     <div class="link">
         <p>Pas encore de compte ?<a href="/signup">Inscription</a></p>
     </div>
 </div>
-
-<script>
-    function login() {
-        const userId = document.getElementById("userId").value;
-        const password = document.getElementById("password").value;
-
-        if (userId.trim() === "" || password.trim() === "") {
-            alert("Veuillez remplir tous les champs !");
-            return;
-        }
-
-        // Redirection vers le chat avec l'ID utilisateur
-        window.location.href = `/chat?username=${encodeURIComponent(userId)}`;
-    }
-</script>
 </body>
 </html>
