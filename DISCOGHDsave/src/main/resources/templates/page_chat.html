@@ -3,244 +3,411 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Chat Room</title>
+    <title>Discord-Style Chat</title>
     <script src="https://cdn.jsdelivr.net/npm/sockjs-client@1.5.0/dist/sockjs.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/stompjs@2.3.3/lib/stomp.min.js"></script>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
     <style>
-        body {
-            font-family: Arial, sans-serif;
+        * {
             margin: 0;
             padding: 0;
-            background-color: #f4f4f9;
+            box-sizing: border-box;
+            font-family: 'Whitney', 'Helvetica Neue', Helvetica, Arial, sans-serif;
         }
 
-        main {
+        body {
+            display: flex;
+            height: 100vh;
+            background-color: #36393f;
+            color: #dcddde;
+        }
+
+        /* Server Sidebar */
+        .server-sidebar {
+            width: 72px;
+            background-color: #202225;
+            padding: 12px 0;
             display: flex;
             flex-direction: column;
             align-items: center;
-            justify-content: center;
-            min-height: 100vh;
-            padding: 1rem;
+            gap: 8px;
         }
 
-        #chat {
-            width: 100%;
-            max-width: 600px;
-            height: 300px;
-            overflow-y: auto;
-            background: white;
-            border: 1px solid #ddd;
-            border-radius: 8px;
-            margin-bottom: 1rem;
-            padding: 1rem;
-        }
-
-        #messages {
-            list-style: none;
-            margin: 0;
-            padding: 0;
-        }
-
-        #messages li {
-            padding: 0.5rem;
-            border-bottom: 1px solid #eee;
-        }
-
-        #messages li:last-child {
-            border-bottom: none;
-        }
-
-        .message-input-container {
+        .server-icon {
+            width: 48px;
+            height: 48px;
+            background-color: #36393f;
+            border-radius: 24px;
             display: flex;
-            gap: 0.5rem;
-            width: 100%;
-            max-width: 600px;
+            align-items: center;
+            justify-content: center;
+            color: #dcddde;
+            cursor: pointer;
+            transition: border-radius 0.2s;
         }
 
-        #messageInput {
+        .server-icon:hover {
+            border-radius: 16px;
+            background-color: #5865f2;
+        }
+
+        /* Channel Sidebar */
+        .channel-sidebar {
+            width: 240px;
+            background-color: #2f3136;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .server-header {
+            padding: 12px 16px;
+            height: 48px;
+            border-bottom: 1px solid #202225;
+            display: flex;
+            align-items: center;
+            font-weight: bold;
+        }
+
+        .channel-list {
+            padding: 8px;
+        }
+
+        .channel {
+            padding: 6px 8px;
+            margin: 2px 0;
+            border-radius: 4px;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            color: #96989d;
+        }
+
+        .channel:hover {
+            background-color: #36393f;
+            color: #dcddde;
+        }
+
+        .channel i {
+            margin-right: 6px;
+        }
+
+        /* Main Chat Area */
+        .chat-container {
             flex: 1;
-            padding: 0.5rem;
-            border: 1px solid #ddd;
-            border-radius: 5px;
+            display: flex;
+            flex-direction: column;
         }
 
-        #messageInput:focus {
-            outline: none;
-            border-color: #0078d7;
-            box-shadow: 0 0 4px rgba(0, 120, 215, 0.4);
+        .chat-header {
+            height: 48px;
+            padding: 0 16px;
+            border-bottom: 1px solid #202225;
+            display: flex;
+            align-items: center;
         }
 
-        button {
-            padding: 0.5rem 1rem;
-            background-color: #0078d7;
+        .chat-messages {
+            flex: 1;
+            padding: 16px;
+            overflow-y: auto;
+        }
+
+        .message {
+            margin-bottom: 16px;
+            display: flex;
+            align-items: flex-start;
+            gap: 16px;
+        }
+
+        .message-avatar {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            background-color: #5865f2;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .message-content {
+            flex: 1;
+        }
+
+        .message-header {
+            display: flex;
+            align-items: baseline;
+            gap: 8px;
+            margin-bottom: 4px;
+        }
+
+        .message-username {
+            font-weight: 500;
             color: white;
+        }
+
+        .message-timestamp {
+            font-size: 0.75rem;
+            color: #72767d;
+        }
+
+        .message-text {
+            color: #dcddde;
+        }
+
+        .chat-input-container {
+            padding: 16px;
+            margin: 0 16px 16px;
+            background-color: #40444b;
+            border-radius: 8px;
+        }
+
+        .chat-input {
+            width: 100%;
+            background: transparent;
             border: none;
-            border-radius: 5px;
+            color: #dcddde;
+            font-size: 1rem;
+            outline: none;
+            resize: none;
+        }
+
+        /* Members Sidebar */
+        .members-sidebar {
+            width: 240px;
+            background-color: #2f3136;
+            padding: 16px;
+        }
+
+        .members-header {
+            padding: 8px;
+            color: #96989d;
+            text-transform: uppercase;
+            font-size: 0.8rem;
+            font-weight: 600;
+        }
+
+        .member {
+            padding: 8px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            border-radius: 4px;
             cursor: pointer;
         }
 
-        #menu {
-            position: fixed;
-            top: 0;
-            right: -275px; /* Menu caché */
-            width: 300px;
-            height: 100%;
-            background: white;
-            box-shadow: -2px 0 5px rgba(0, 0, 0, 0.1);
-            transition: right 0.3s ease-in-out;
-            padding: 1rem;
-            z-index: 1000;
+        .member:hover {
+            background-color: #36393f;
         }
 
-        #menu.open {
-            right: 0; /* Menu visible */
+        .member-avatar {
+            width: 32px;
+            height: 32px;
+            border-radius: 50%;
+            background-color: #5865f2;
+            display: flex;
+            align-items: center;
+            justify-content: center;
         }
 
-        #menu h2 {
-            margin: 0 0 1rem;
+        .member-name {
+            color: #96989d;
         }
 
-        #menu ul {
-            list-style: none;
-            padding: 0;
+        .member.online .member-name {
+            color: #dcddde;
         }
 
-        #menu ul li {
-            padding: 0.5rem 0;
-            border-bottom: 1px solid #ddd;
-        }
-
-        #toggleMenu {
-            position: fixed;
-            top: 1rem;
-            right: 1rem;
-            background: #0078d7;
-            color: white;
-            border: none;
-            padding: 0.5rem 1rem;
-            border-radius: 5px;
-            cursor: pointer;
-        }
-
-        #toggleMenu:focus {
-            outline: none;
+        .member.online::before {
+            content: '';
+            display: block;
+            width: 8px;
+            height: 8px;
+            border-radius: 50%;
+            background-color: #3ba55c;
+            position: absolute;
+            left: 28px;
+            margin-top: 24px;
         }
 
         #logoutButton {
-            padding: 0.5rem 1rem;
-            background-color: #d9534f;
+            margin: 8px;
+            padding: 8px 16px;
+            background-color: #ed4245;
             color: white;
             border: none;
-            border-radius: 5px;
+            border-radius: 4px;
             cursor: pointer;
-            margin-top: 1rem;
+            transition: background-color 0.2s;
         }
 
         #logoutButton:hover {
-            background-color: #c9302c;
+            background-color: #c03537;
         }
     </style>
 </head>
 <body>
-<main>
-    <div style="text-align: right; width: 100%; max-width: 600px;">
-        <button id="logoutButton" onclick="logout()">Déconnexion</button>
+<!-- Server Sidebar -->
+<div class="server-sidebar">
+    <div class="server-icon">
+        <i class="fas fa-home"></i>
     </div>
-    <h1>Bienvenue dans le Chat !</h1>
-    <section id="chat">
-        <ul id="messages"></ul>
-    </section>
-
-    <div class="message-input-container">
-        <input type="text" id="messageInput" placeholder="Tapez votre message...">
-        <button onclick="sendMessage()">Envoyer</button>
+    <div class="server-icon">
+        <i class="fas fa-comments"></i>
     </div>
-</main>
+</div>
 
-<!-- Menu glissant -->
-<button id="toggleMenu">Utilisateurs</button>
-<div id="menu">
-    <h2>Utilisateurs connectés</h2>
-    <ul id="userList">
-        <!-- Liste dynamique des utilisateurs -->
-    </ul>
+<!-- Channel Sidebar -->
+<div class="channel-sidebar">
+    <div class="server-header">
+        Chat Server
+    </div>
+    <div class="channel-list">
+        <div class="channel">
+            <i class="fas fa-hashtag"></i>
+            général
+        </div>
+        <div class="channel">
+            <i class="fas fa-hashtag"></i>
+            discussions
+        </div>
+    </div>
+    <button id="logoutButton" onclick="logout()">
+        <i class="fas fa-sign-out-alt"></i> Déconnexion
+    </button>
+</div>
+
+<!-- Main Chat Area -->
+<div class="chat-container">
+    <div class="chat-header">
+        <i class="fas fa-hashtag"></i>
+        <span style="margin-left: 8px;">général</span>
+    </div>
+    <div class="chat-messages" id="messages">
+    </div>
+    <div class="chat-input-container">
+        <input type="text" id="messageInput" class="chat-input" placeholder="Envoyer un message dans #général">
+    </div>
+</div>
+
+<!-- Members Sidebar -->
+<div class="members-sidebar">
+    <div class="members-header">
+        Membres en ligne - <span id="memberCount">0</span>
+    </div>
+    <div id="userList">
+        <!-- Users will be dynamically added here -->
+    </div>
 </div>
 
 <script>
     const urlParams = new URLSearchParams(window.location.search);
     const username = urlParams.get('username') || "Anonyme";
 
-    // WebSocket setup
     const socket = new SockJS('/chat-websocket');
     const stompClient = Stomp.over(socket);
 
     stompClient.connect({}, () => {
-        // Subscribe to general messages
-        stompClient.subscribe('/topic/messages', (message) => {
-            const msg = JSON.parse(message.body);
-            const listItem = document.createElement("li");
-            listItem.textContent = `${msg.sender}: ${msg.content}`;
-            document.getElementById("messages").appendChild(listItem);
-        });
-
-        // Subscribe to the global active users list
-        stompClient.subscribe('/topic/activeUsers', (message) => {
-            const users = JSON.parse(message.body);
-            const userList = document.getElementById("userList");
-            userList.innerHTML = '';
-            users.forEach((user) => {
-                const listItem = document.createElement("li");
-                listItem.textContent = user;
-                userList.appendChild(listItem);
-            });
-        });
-
-        // Subscribe to the private active users list for this user
+        // S'abonner d'abord à la liste des utilisateurs actifs
         stompClient.subscribe('/user/queue/activeUsers', (message) => {
             const users = JSON.parse(message.body);
-            const userList = document.getElementById("userList");
-            userList.innerHTML = '';
-            users.forEach((user) => {
-                const listItem = document.createElement("li");
-                listItem.textContent = user;
-                userList.appendChild(listItem);
-            });
+            updateUserList(users);
         });
+
+        // S'abonner aux messages
+        stompClient.subscribe('/topic/messages', (message) => {
+            const msg = JSON.parse(message.body);
+            addMessage(msg);
+        });
+
+        // S'abonner aux mises à jour de la liste des utilisateurs
+        stompClient.subscribe('/topic/activeUsers', (message) => {
+            const users = JSON.parse(message.body);
+            updateUserList(users);
+        });
+
+        // S'abonner aux notifications
+        stompClient.subscribe('/topic/notifications', (message) => {
+            console.log("Notification:", message.body);
+        });
+
+        // Envoyer un message pour signaler la connexion de l'utilisateur
+        stompClient.send("/app/user.connect", {}, JSON.stringify({
+            username: username
+        }));
+    });
+
+    function addMessage(msg) {
+        const messagesDiv = document.getElementById("messages");
+        const messageDiv = document.createElement("div");
+        messageDiv.className = "message";
+
+        messageDiv.innerHTML = `
+                <div class="message-avatar">
+                    ${msg.sender.charAt(0).toUpperCase()}
+                </div>
+                <div class="message-content">
+                    <div class="message-header">
+                        <span class="message-username">${msg.sender}</span>
+                        <span class="message-timestamp">${new Date().toLocaleTimeString()}</span>
+                    </div>
+                    <div class="message-text">${msg.content}</div>
+                </div>
+            `;
+
+        messagesDiv.appendChild(messageDiv);
+        messagesDiv.scrollTop = messagesDiv.scrollHeight;
+    }
+
+    function updateUserList(users) {
+        const userList = document.getElementById("userList");
+        userList.innerHTML = '';
+        document.getElementById("memberCount").textContent = users.length;
+
+        users.forEach((user) => {
+            const memberDiv = document.createElement("div");
+            memberDiv.className = "member online";
+            memberDiv.innerHTML = `
+                    <div class="member-avatar">${user.charAt(0).toUpperCase()}</div>
+                    <div class="member-name">${user}</div>
+                `;
+            userList.appendChild(memberDiv);
+        });
+    }
+
+    document.getElementById("messageInput").addEventListener("keypress", (event) => {
+        if (event.key === "Enter" && !event.shiftKey) {
+            event.preventDefault();
+            sendMessage();
+        }
     });
 
     function sendMessage() {
-        const content = document.getElementById("messageInput").value.trim();
+        const input = document.getElementById("messageInput");
+        const content = input.value.trim();
         if (content) {
-            stompClient.send("/app/sendMessage", {}, JSON.stringify({ sender: username, content: content }));
-            document.getElementById("messageInput").value = "";
+            stompClient.send("/app/sendMessage", {}, JSON.stringify({
+                sender: username,
+                content: content
+            }));
+            input.value = "";
         }
     }
 
     function logout() {
         if (stompClient) {
+            // Envoyer un message de déconnexion avant de fermer la connexion
+            stompClient.send("/app/user.disconnect", {}, JSON.stringify({
+                username: username
+            }));
+
             stompClient.disconnect(() => {
                 console.log("Disconnected from WebSocket");
+                window.location.href = `/logout?username=${encodeURIComponent(username)}`;
             });
+        } else {
+            window.location.href = `/logout?username=${encodeURIComponent(username)}`;
         }
-        window.location.href = `/logout?username=${encodeURIComponent(username)}`;
     }
-
-    // Menu sliding logic
-    const menu = document.getElementById("menu");
-    const toggleMenu = document.getElementById("toggleMenu");
-
-    toggleMenu.addEventListener("click", () => {
-        menu.classList.toggle("open");
-    });
-
-    document.addEventListener("click", (event) => {
-        const isClickInsideMenu = menu.contains(event.target);
-        const isClickToggleButton = toggleMenu.contains(event.target);
-
-        if (!isClickInsideMenu && !isClickToggleButton && menu.classList.contains("open")) {
-            menu.classList.remove("open");
-        }
-    });
 </script>
 </body>
 </html>

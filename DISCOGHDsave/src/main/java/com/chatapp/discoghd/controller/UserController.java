@@ -104,4 +104,12 @@ public class UserController {
     public String logout() {
         return "redirect:/"; // Redirect to the homepage or login page
     }
+
+    @GetMapping("/forgot_password")
+    public String forgotPage(@RequestParam(value = "error", required = false) String error, Model model) {
+        if (error != null) {
+            model.addAttribute("error", error);
+        }
+        return "forgot_password";
+    }
 }
