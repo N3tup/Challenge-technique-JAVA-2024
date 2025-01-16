@@ -6,6 +6,9 @@ import lombok.Getter;
 import jakarta.persistence.*;
 import lombok.Setter;
 
+import java.security.Timestamp;
+import java.time.LocalDateTime;
+
 
 @Getter
 @Setter
@@ -31,6 +34,8 @@ public class User {
     @javax.validation.constraints.NotNull
     @Column(name = "password", nullable = false)
     private String password;
+
+
 
     //getter setter
     public User (){
