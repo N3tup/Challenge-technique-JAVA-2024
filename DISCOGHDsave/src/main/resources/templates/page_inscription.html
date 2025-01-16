@@ -63,7 +63,7 @@
 <body>
 <div class="container">
     <h1>Sign Up</h1>
-    <form action="/register" method="post" onsubmit="handleSignUp(event)">
+    <form action="user/signup" method="post" onsubmit="handleSignUp(event)">
         <label for="username">Username</label>
         <input type="text" id="username" name="username" placeholder="Choose a username" required>
 
@@ -94,8 +94,10 @@
 
         // Perform the registration logic here (e.g., send data to the server)
 
-        // Redirect to the chat page with the username
-        window.location.href = `/chat?username=${encodeURIComponent(username)}`;
+
+
+        // Redirect to the confirmation page
+        window.location.href = '/confirmation';
     }
 </script>
 </body>

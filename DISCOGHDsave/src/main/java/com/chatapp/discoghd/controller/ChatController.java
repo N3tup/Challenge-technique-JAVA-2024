@@ -9,6 +9,7 @@ import org.springframework.messaging.simp.stomp.StompHeaderAccessor;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.socket.messaging.SessionDisconnectEvent;
 import org.springframework.web.socket.messaging.SessionConnectEvent;
@@ -40,12 +41,46 @@ public class ChatController {
     }
 
     // acces inscription
-    @GetMapping("/inscription")
-    public String inscriptionPage(@RequestParam(value = "error", required = false) String error, Model model) {
+    @GetMapping("/signup")
+    public String signup(@RequestParam(value = "error", required = false) String error, Model model) {
         if (error != null) {
             model.addAttribute("error", error);
         }
-        return "page_inscription";
+        return "signup";
+    }
+
+    @PostMapping("/signupPHP")
+    public String processSignup(@RequestParam String username, @RequestParam String email, @RequestParam String password, Model model) {
+        // Add logic for saving user data or checking if username/email is already taken
+
+        // Example error handling
+        if (username.isBlank() || email.isBlank() || password.isBlank()) {
+            model.addAttribute("error", "All fields are required.");
+            return "signupPHP"; // Redirect to signup page with error message
+        }
+
+        // Logic to register the user, like saving to a database or a dummy list
+        // For now, we're just sending a success message (you can replace this with real registration logic)
+        model.addAttribute("success", "Account created successfully.");
+        return "page_confirmation"; // Redirect to the confirmation page
+    }
+
+    // confirmation inscription
+    @GetMapping("/confirmation")
+    public String confirmationPage(@RequestParam(value = "error", required = false) String error, Model model) {
+        if (error != null) {
+            model.addAttribute("error", error);
+        }
+        return "page_confirmation";
+    }
+
+    //register.php
+    @GetMapping("/register")
+    public String registerPage(@RequestParam(value = "error", required = false) String error, Model model) {
+        if (error != null) {
+            model.addAttribute("error", error);
+        }
+        return "register";
     }
 
     @GetMapping("/chat")
