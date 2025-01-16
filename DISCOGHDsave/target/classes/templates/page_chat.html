@@ -243,6 +243,58 @@
         #logoutButton:hover {
             background-color: #c03537;
         }
+
+         .private-chat-tab {
+             padding: 8px 16px;
+             background-color: #4f545c;
+             border-radius: 4px;
+             margin: 4px 0;
+             cursor: pointer;
+             display: flex;
+             align-items: center;
+             gap: 8px;
+         }
+
+        .private-chat-tab:hover {
+            background-color: #5d6269;
+        }
+
+        .private-chat-tab.active {
+            background-color: #5865f2;
+        }
+
+        #private-chat-container {
+            display: none;
+            position: absolute;
+            top: 0;
+            right: 240px; /* Width of members sidebar */
+            bottom: 0;
+            width: 400px;
+            background-color: #36393f;
+            border-left: 1px solid #202225;
+        }
+
+        .member {
+            position: relative;
+        }
+
+        .member .private-message-button {
+            display: none;
+            position: absolute;
+            right: 8px;
+            background: none;
+            border: none;
+            color: #b9bbbe;
+            cursor: pointer;
+        }
+
+        .member:hover .private-message-button {
+            display: block;
+        }
+
+        .member .private-message-button:hover {
+            color: #dcddde;
+        }
     </style>
 </head>
 <body>
@@ -289,6 +341,21 @@
     </div>
 </div>
 
+<!-- Private Chat Area -->
+<div id="private-chat-container" style="display: none" class="chat-container">
+    <div class="chat-header">
+        <i class="fas fa-user"></i>
+        <span id="private-chat-recipient" style="margin-left: 8px;"></span>
+        <button onclick="closePrivateChat()" style="margin-left: auto; background: none; border: none; color: #dcddde; cursor: pointer;">
+            <i class="fas fa-times"></i>
+        </button>
+    </div>
+    <div class="chat-messages" id="private-messages"></div>
+    <div class="chat-input-container">
+        <input type="text" id="privateMessageInput" class="chat-input" placeholder="Envoyer un message privé">
+    </div>
+</div>
+
 <!-- Members Sidebar -->
 <div class="members-sidebar">
     <div class="members-header">
@@ -306,34 +373,44 @@
     const socket = new SockJS('/chat-websocket');
     const stompClient = Stomp.over(socket);
 
-    stompClient.connect({}, () => {
-        // S'abonner d'abord à la liste des utilisateurs actifs
-        stompClient.subscribe('/user/queue/activeUsers', (message) => {
-            const users = JSON.parse(message.body);
-            updateUserList(users);
-        });
+    // Enable debug logging for STOMP
+    stompClient.debug = function(str) {
+        console.log('STOMP: ', str);
+    };
 
-        // S'abonner aux messages
+    stompClient.connect({}, (frame) => {
+        console.log('Connected: ' + frame);
+
+        // Subscribe to public messages
         stompClient.subscribe('/topic/messages', (message) => {
+            console.log('Received public message:', message);
             const msg = JSON.parse(message.body);
             addMessage(msg);
         });
 
-        // S'abonner aux mises à jour de la liste des utilisateurs
+        // Subscribe to private messages - important to use the correct destination format
+        stompClient.subscribe(`/user/${username}/queue/private-messages`, (message) => {
+            console.log('Received private message:', message);
+            const msg = JSON.parse(message.body);
+            addPrivateMessage(msg);
+            // If private chat isn't open, open it
+            if (document.getElementById('private-chat-container').style.display === 'none') {
+                openPrivateChat(msg.sender);
+            }
+        });
+
+        // Subscribe to active users updates
         stompClient.subscribe('/topic/activeUsers', (message) => {
             const users = JSON.parse(message.body);
             updateUserList(users);
         });
 
-        // S'abonner aux notifications
-        stompClient.subscribe('/topic/notifications', (message) => {
-            console.log("Notification:", message.body);
-        });
-
-        // Envoyer un message pour signaler la connexion de l'utilisateur
+        // Initial connection message
         stompClient.send("/app/user.connect", {}, JSON.stringify({
             username: username
         }));
+    }, (error) => {
+        console.error('STOMP error:', error);
     });
 
     function addMessage(msg) {
@@ -342,20 +419,57 @@
         messageDiv.className = "message";
 
         messageDiv.innerHTML = `
-                <div class="message-avatar">
-                    ${msg.sender.charAt(0).toUpperCase()}
+            <div class="message-avatar">
+                ${msg.sender.charAt(0).toUpperCase()}
+            </div>
+            <div class="message-content">
+                <div class="message-header">
+                    <span class="message-username">${msg.sender}</span>
+                    <span class="message-timestamp">${new Date().toLocaleTimeString()}</span>
                 </div>
-                <div class="message-content">
-                    <div class="message-header">
-                        <span class="message-username">${msg.sender}</span>
-                        <span class="message-timestamp">${new Date().toLocaleTimeString()}</span>
-                    </div>
-                    <div class="message-text">${msg.content}</div>
-                </div>
-            `;
+                <div class="message-text">${msg.content}</div>
+            </div>
+        `;
 
         messagesDiv.appendChild(messageDiv);
         messagesDiv.scrollTop = messagesDiv.scrollHeight;
+    }
+
+    function addPrivateMessage(msg) {
+        console.log('Adding private message:', msg);
+        const messagesDiv = document.getElementById("private-messages");
+        const messageDiv = document.createElement("div");
+        messageDiv.className = "message";
+
+        messageDiv.innerHTML = `
+            <div class="message-avatar">
+                ${msg.sender.charAt(0).toUpperCase()}
+            </div>
+            <div class="message-content">
+                <div class="message-header">
+                    <span class="message-username">${msg.sender}</span>
+                    <span class="message-timestamp">${new Date(msg.timestamp).toLocaleTimeString()}</span>
+                </div>
+                <div class="message-text">${msg.content}</div>
+            </div>
+        `;
+
+        messagesDiv.appendChild(messageDiv);
+        messagesDiv.scrollTop = messagesDiv.scrollHeight;
+    }
+
+    function openPrivateChat(recipientUsername) {
+        console.log('Opening private chat with:', recipientUsername);
+        const container = document.getElementById('private-chat-container');
+        container.style.display = 'flex';
+        document.getElementById('private-chat-recipient').textContent = recipientUsername;
+        document.getElementById('privateMessageInput').setAttribute('data-recipient', recipientUsername);
+        // Clear previous messages when opening new chat
+        document.getElementById('private-messages').innerHTML = '';
+    }
+
+    function closePrivateChat() {
+        document.getElementById('private-chat-container').style.display = 'none';
     }
 
     function updateUserList(users) {
@@ -364,20 +478,52 @@
         document.getElementById("memberCount").textContent = users.length;
 
         users.forEach((user) => {
-            const memberDiv = document.createElement("div");
-            memberDiv.className = "member online";
-            memberDiv.innerHTML = `
+            if (user !== username) {  // Don't show PM button for current user
+                const memberDiv = document.createElement("div");
+                memberDiv.className = "member online";
+                memberDiv.innerHTML = `
                     <div class="member-avatar">${user.charAt(0).toUpperCase()}</div>
                     <div class="member-name">${user}</div>
+                    <button class="private-message-button" onclick="openPrivateChat('${user}')">
+                        <i class="fas fa-comment"></i>
+                    </button>
                 `;
-            userList.appendChild(memberDiv);
+                userList.appendChild(memberDiv);
+            }
         });
     }
 
+    function sendPrivateMessage() {
+        const input = document.getElementById("privateMessageInput");
+        const content = input.value.trim();
+        const recipient = input.getAttribute('data-recipient');
+
+        if (content && recipient) {
+            console.log('Sending private message to:', recipient);
+            const message = {
+                sender: username,
+                recipient: recipient,
+                content: content,
+                timestamp: new Date().getTime()
+            };
+
+            stompClient.send("/app/private-message", {}, JSON.stringify(message));
+            input.value = "";
+        }
+    }
+
+    // Event listeners
     document.getElementById("messageInput").addEventListener("keypress", (event) => {
         if (event.key === "Enter" && !event.shiftKey) {
             event.preventDefault();
             sendMessage();
+        }
+    });
+
+    document.getElementById("privateMessageInput").addEventListener("keypress", (event) => {
+        if (event.key === "Enter" && !event.shiftKey) {
+            event.preventDefault();
+            sendPrivateMessage();
         }
     });
 
@@ -395,7 +541,6 @@
 
     function logout() {
         if (stompClient) {
-            // Envoyer un message de déconnexion avant de fermer la connexion
             stompClient.send("/app/user.disconnect", {}, JSON.stringify({
                 username: username
             }));

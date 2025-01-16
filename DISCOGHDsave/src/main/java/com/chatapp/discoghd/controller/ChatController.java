@@ -1,6 +1,7 @@
 package com.chatapp.discoghd.controller;
 
 import com.chatapp.discoghd.model.Message;
+import com.chatapp.discoghd.model.PrivateMessage;
 import org.springframework.context.event.EventListener;
 import org.springframework.messaging.handler.annotation.MessageMapping;
 import org.springframework.messaging.handler.annotation.SendTo;
@@ -12,6 +13,7 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.socket.messaging.SessionDisconnectEvent;
 import org.springframework.web.socket.messaging.SessionConnectEvent;
+import org.springframework.messaging.simp.SimpMessagingTemplate;
 
 import java.nio.charset.StandardCharsets;
 import java.net.URLEncoder;
@@ -20,9 +22,11 @@ import java.util.HashMap;
 @Controller
 public class ChatController {
     private final ActiveUserController activeUserController;
+    private final SimpMessagingTemplate messagingTemplate;
 
-    public ChatController(ActiveUserController activeUserController) {
+    public ChatController(ActiveUserController activeUserController, SimpMessagingTemplate messagingTemplate) {
         this.activeUserController = activeUserController;
+        this.messagingTemplate = messagingTemplate;
     }
 
     // Landing page with login
@@ -144,5 +148,25 @@ public class ChatController {
             activeUserController.notifyUserLeft(username);
         }
         return "redirect:/?message=Vous êtes déconnecté.";
+    }
+
+    @MessageMapping("/private-message")
+    public void handlePrivateMessage(PrivateMessage message) {
+        message.setTimestamp(System.currentTimeMillis());
+        // Prevent XSS attacks by escaping HTML characters
+        message.setContent(message.getContent().replaceAll("<", "&lt;").replaceAll(">", "&gt;"));
+
+        // Send to recipient
+        messagingTemplate.convertAndSendToUser(
+                message.getRecipient(),
+                "/queue/private-messages",
+                message
+        );
+        // Send to sender
+        messagingTemplate.convertAndSendToUser(
+                message.getSender(),
+                "/queue/private-messages",
+                message
+        );
     }
 }
