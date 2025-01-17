@@ -1,0 +1,13 @@
+com\chatapp\challenge_technique_drash_bouchez\model\PrivateMessage.class
+com\chatapp\challenge_technique_drash_bouchez\model\User.class
+com\chatapp\challenge_technique_drash_bouchez\controller\UserController.class
+com\chatapp\challenge_technique_drash_bouchez\service\UserService.class
+com\chatapp\challenge_technique_drash_bouchez\controller\ActiveUserController.class
+com\chatapp\challenge_technique_drash_bouchez\DiscoghdApplication.class
+com\chatapp\challenge_technique_drash_bouchez\controller\UserConnectionMessage.class
+com\chatapp\challenge_technique_drash_bouchez\controller\ChatController.class
+com\chatapp\challenge_technique_drash_bouchez\model\Message.class
+com\chatapp\challenge_technique_drash_bouchez\service\ChatService.class
+com\chatapp\challenge_technique_drash_bouchez\controller\WebSocketController.class
+com\chatapp\challenge_technique_drash_bouchez\config\WebSocketConfig.class
+com\chatapp\challenge_technique_drash_bouchez\repository\UserRepository.class

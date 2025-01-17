@@ -1,0 +1,100 @@
+@startuml
+
+
+        class WebSocketConfig {
+            +configureMessageBroker(MessageBrokerRegistry config)
+            +registerStompEndpoints(StompEndpointRegistry registry)
+        }
+
+        class Message {
+            -String sender
+            -String content
+            -long timestamp
+            +getSender() String
+            +setSender(String)
+            +getContent() String
+            +setContent(String)
+            +getTimestamp() long
+            +setTimestamp(long)
+        }
+
+        class PrivateMessage {
+            -String sender
+            -String recipient
+            -String content
+            -long timestamp
+            +getSender() String
+            +setSender(String)
+            +getRecipient() String
+            +setRecipient(String)
+            +getContent() String
+            +setContent(String)
+            +getTimestamp() long
+            +setTimestamp(long)
+        }
+
+        class User {
+            -Integer id
+            -String username
+            -String email
+            -String password
+            +User()
+            +User(String, String, String)
+            +getters()
+            +setters()
+        }
+
+        class UserRepository {
+            <<interface>>
+            +findByUsername(String) Optional~User~
+            +findByEmail(String) Optional~User~
+        }
+
+        class UserService {
+            +saveUser(User)
+            +isUsernameTaken(String) boolean
+        }
+
+        class ActiveUserController {
+            -Set~String~ activeUsers
+            -SimpMessagingTemplate messagingTemplate
+            +getActiveUsers() Set~String~
+            +addUser(String)
+            +removeUser(String)
+            +isUserActive(String) boolean
+            -broadcastUserList()
+            +notifyUserJoined(String)
+            +notifyUserLeft(String)
+        }
+
+        class ChatController {
+            +indexPage(String, Model) String
+            +chatPage(String, Model) String
+            +sendMessage(Message) Message
+            +handlePrivateMessage(PrivateMessage)
+            +handleWebSocketConnect(SessionConnectEvent)
+            +handleWebSocketDisconnect(SessionDisconnectEvent)
+        }
+
+        class UserController {
+            +showSignupForm() String
+            +registerUser(String, String, String, Model) String
+            +loginUser(String, String, Model) String
+            +handleForgotPassword(Map) ResponseEntity
+            +handleResetPassword(Map) ResponseEntity
+        }
+
+        class WebSocketController {
+            +handleUserConnect(UserConnectionMessage)
+            +handleUserDisconnect(UserConnectionMessage)
+        }
+
+        ChatController --> ActiveUserController
+        ChatController --> Message
+        ChatController --> PrivateMessage
+        UserController --> UserService
+        UserController --> UserRepository
+        UserService --> UserRepository
+        UserRepository --> User
+        WebSocketController --> ActiveUserController
+@endumll

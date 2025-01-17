@@ -1,0 +1,224 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Bienvenue sur Discord</title>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Whitney', 'Helvetica Neue', Helvetica, Arial, sans-serif;
+        }
+
+        body {
+            background-color: #404EED;
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background-image: url("data:image/svg+xml,%3Csvg width='20' height='20' viewBox='0 0 20 20' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='%237289da' fill-opacity='0.2' fill-rule='evenodd'%3E%3Ccircle cx='3' cy='3' r='3'/%3E%3Ccircle cx='13' cy='13' r='3'/%3E%3C/g%3E%3C/svg%3E");
+            padding: 20px;
+        }
+
+        .welcome-container {
+            background-color: #313338;
+            border-radius: 8px;
+            box-shadow: 0 2px 10px 0 rgba(0,0,0,.2);
+            width: 100%;
+            max-width: 600px;
+            overflow: hidden;
+        }
+
+        .welcome-header {
+            background-color: #5865F2;
+            padding: 40px;
+            text-align: center;
+            color: white;
+        }
+
+        .welcome-header i {
+            font-size: 48px;
+            margin-bottom: 20px;
+        }
+
+        .welcome-header h1 {
+            font-size: 28px;
+            margin-bottom: 10px;
+        }
+
+        .welcome-header p {
+            font-size: 16px;
+            opacity: 0.9;
+        }
+
+        .welcome-content {
+            padding: 32px;
+        }
+
+        .steps-container {
+            margin-bottom: 32px;
+        }
+
+        .step {
+            display: flex;
+            align-items: center;
+            gap: 16px;
+            padding: 16px;
+            background-color: #2B2D31;
+            border-radius: 8px;
+            margin-bottom: 16px;
+        }
+
+        .step-icon {
+            width: 40px;
+            height: 40px;
+            background-color: #5865F2;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-size: 20px;
+        }
+
+        .step-content {
+            flex: 1;
+        }
+
+        .step h3 {
+            color: #FFFFFF;
+            margin-bottom: 4px;
+            font-size: 16px;
+        }
+
+        .step p {
+            color: #B5BAC1;
+            font-size: 14px;
+        }
+
+        .action-buttons {
+            display: flex;
+            gap: 16px;
+            margin-top: 32px;
+        }
+
+        .button {
+            padding: 12px 24px;
+            border-radius: 4px;
+            font-size: 16px;
+            font-weight: 500;
+            cursor: pointer;
+            text-decoration: none;
+            text-align: center;
+            transition: background-color 0.2s;
+        }
+
+        .primary-button {
+            background-color: #5865F2;
+            color: white;
+            flex: 2;
+        }
+
+        .primary-button:hover {
+            background-color: #4752C4;
+        }
+
+        .secondary-button {
+            background-color: #4E5058;
+            color: white;
+            flex: 1;
+        }
+
+        .secondary-button:hover {
+            background-color: #6D6F78;
+        }
+
+        .email-status {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            color: #B5BAC1;
+            font-size: 14px;
+            margin-top: 16px;
+        }
+
+        .email-status i {
+            color: #3BA55C;
+        }
+
+        @media (max-width: 600px) {
+            .welcome-container {
+                border-radius: 0;
+            }
+
+            .action-buttons {
+                flex-direction: column;
+            }
+
+            .button {
+                width: 100%;
+            }
+        }
+    </style>
+</head>
+<body>
+<div class="welcome-container">
+    <div class="welcome-header">
+        <i class="fas fa-check-circle"></i>
+        <h1>Bienvenue sur Discord !</h1>
+        <p>Votre compte a été créé avec succès</p>
+    </div>
+
+    <div class="welcome-content">
+        <div class="steps-container">
+            <div class="step">
+                <div class="step-icon">
+                    <i class="fas fa-envelope"></i>
+                </div>
+                <div class="step-content">
+                    <h3>Vérifiez votre email</h3>
+                    <p>Un email de confirmation a été envoyé à votre adresse</p>
+                </div>
+            </div>
+
+            <div class="step">
+                <div class="step-icon">
+                    <i class="fas fa-user-friends"></i>
+                </div>
+                <div class="step-content">
+                    <h3>Rejoignez des serveurs</h3>
+                    <p>Trouvez des communautés qui partagent vos intérêts</p>
+                </div>
+            </div>
+
+            <div class="step">
+                <div class="step-icon">
+                    <i class="fas fa-comments"></i>
+                </div>
+                <div class="step-content">
+                    <h3>Commencez à discuter</h3>
+                    <p>Envoyez des messages, partagez des fichiers et restez connecté</p>
+                </div>
+            </div>
+        </div>
+
+        <div class="email-status">
+            <i class="fas fa-envelope"></i>
+            Email envoyé à <strong>[[${email}]]</strong>
+        </div>
+
+        <div class="action-buttons">
+            <a href="/" class="button primary-button">
+                Commencer à discuter
+            </a>
+            <a href="#" class="button secondary-button">
+                Paramètres
+            </a>
+        </div>
+    </div>
+</div>
+</body>
+</html>

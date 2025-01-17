@@ -1,0 +1,167 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Login - Discord Style</title>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Whitney', 'Helvetica Neue', Helvetica, Arial, sans-serif;
+        }
+
+        body {
+            background-color: #404EED;
+            height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background-image: url("data:image/svg+xml,%3Csvg width='20' height='20' viewBox='0 0 20 20' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='%237289da' fill-opacity='0.2' fill-rule='evenodd'%3E%3Ccircle cx='3' cy='3' r='3'/%3E%3Ccircle cx='13' cy='13' r='3'/%3E%3C/g%3E%3C/svg%3E");
+        }
+
+        .login-container {
+            background-color: #313338;
+            padding: 32px;
+            border-radius: 5px;
+            box-shadow: 0 2px 10px 0 rgba(0,0,0,.2);
+            width: 480px;
+        }
+
+        .login-header {
+            text-align: center;
+            margin-bottom: 24px;
+        }
+
+        .login-header h1 {
+            color: #fff;
+            font-size: 24px;
+            margin-bottom: 8px;
+            font-weight: 600;
+        }
+
+        .login-header p {
+            color: #B5BAC1;
+            font-size: 16px;
+        }
+
+        .form-group {
+            margin-bottom: 20px;
+        }
+
+        .form-group label {
+            color: #B5BAC1;
+            font-size: 12px;
+            font-weight: 700;
+            text-transform: uppercase;
+            margin-bottom: 8px;
+            display: block;
+        }
+
+        .form-group input {
+            width: 100%;
+            padding: 10px;
+            background-color: #1E1F22;
+            border: none;
+            border-radius: 3px;
+            color: #F2F3F5;
+            font-size: 16px;
+            transition: border .2s ease-in-out;
+        }
+
+        .form-group input:focus {
+            outline: none;
+            border: 1px solid #00A8FC;
+        }
+
+        .login-button {
+            width: 100%;
+            padding: 12px;
+            background-color: #5865F2;
+            color: white;
+            border: none;
+            border-radius: 3px;
+            font-size: 16px;
+            font-weight: 500;
+            cursor: pointer;
+            transition: background-color .2s ease-in-out;
+            margin-bottom: 8px;
+        }
+
+        .login-button:hover {
+            background-color: #4752C4;
+        }
+
+        .auth-links {
+            text-align: left;
+            font-size: 14px;
+            color: #949BA4;
+        }
+
+        .auth-links a {
+            color: #00A8FC;
+            text-decoration: none;
+            font-size: 14px;
+        }
+
+        .auth-links a:hover {
+            text-decoration: underline;
+        }
+
+        .error-message {
+            background-color: rgba(240, 71, 71, 0.1);
+            color: #FA777C;
+            padding: 10px;
+            border-radius: 3px;
+            margin-bottom: 16px;
+            font-size: 14px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        @media (max-width: 520px) {
+            .login-container {
+                width: 100%;
+                margin: 20px;
+                padding: 20px;
+            }
+        }
+    </style>
+</head>
+<body>
+<div class="login-container">
+    <div class="login-header">
+        <h1>Bon retour !</h1>
+        <p>Nous sommes si heureux de vous revoir !</p>
+    </div>
+
+    <form action="/user/login" method="post">
+        <div th:if="${error}" class="error-message">
+            <i class="fas fa-exclamation-triangle"></i>
+            Username ou mot de passe incorrect.
+        </div>
+
+        <div class="form-group">
+            <label for="username">username</label>
+            <input type="text" id="username" name="username" required>
+        </div>
+
+        <div class="form-group">
+            <label for="password">MOT DE PASSE</label>
+            <input type="password" id="password" name="password" required>
+        </div>
+
+        <a href="user/reset_password" class="auth-links">Mot de passe oublié ?</a>
+
+        <button type="submit" class="login-button">Se connecter</button>
+
+        <div class="auth-links">
+            Besoin d'un compte ? <a href="/signup">S'inscrire</a>
+        </div>
+    </form>
+</div>
+</body>
+</html>
